@@ -100,15 +100,19 @@ def Gooey(f=None, advanced=True,
       filename = os.path.basename(main_module_path)
       cleaned_source = clean_source(main_module_path)
 
+      ### Create a temp file
       descriptor, tmp_filepath = tempfile.mkstemp(suffix='.py')
       atexit.register(cleanup, descriptor, tmp_filepath)
 
+      ### write the source to the tmp file without the decorator @gooey
       with open(tmp_filepath, 'w') as f:
         f.write(cleaned_source)
 
+      ### If there aren't any args that get parsed, skip the config phase
       if not has_argparse(cleaned_source):
         show_config = False
 
+      ### Run our new version
       run_cmd = 'python {}'.format(tmp_filepath)
 
       # Must be called before anything else

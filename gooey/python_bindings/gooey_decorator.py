@@ -67,16 +67,37 @@ def Gooey(f=None, advanced=True,
   Scans the client code for argparse data.
   If found, extracts it and build the proper
   configuration gui windows (basic or advanced).
+  :param f: The function being decorated. Note it's not actually called, just used as a reference.
+  :type f: callable
+  :param advanced: Whether to show advanced config or not 
+  :type advanced: bool
+  :param language: Translations configurable via json
+  :type language: str
+  :param show_config: Skip config screens all together
+  :type show_config: bool
+  :param program_name: Defaults to script name 
+  :type program_name: str or None
+  :param program_description: Defaults to ArgParse Description
+  :type program_description: str or None
   '''
 
   params = locals()
 
   def build(payload):
+    """
+    Returns a function called inner() and sets its __name__ to payload's.
+
+    :param payload: The (decorated) main function from the module
+    :type payload: callable
+    :rtype: callable
+    """
     def inner():
+      """
+      """
       show_config = params['show_config'] #because nonlocal keyword doesn't exist yet :(
 
       main_module_path = get_caller_path()
-      _, filename = os.path.split(main_module_path)
+      filename = os.path.basename(main_module_path)
       cleaned_source = clean_source(main_module_path)
 
       descriptor, tmp_filepath = tempfile.mkstemp(suffix='.py')
@@ -145,12 +166,20 @@ def Gooey(f=None, advanced=True,
     inner.__name__ = payload.__name__
     return inner
 
+  ### If f is callable return build of f, otherwise return build.
   if callable(f):
     return build(f)
   return build
 
 
 def clean_source(module_path):
+  """
+  Returns the text of the module stripping out the decorator @gooey
+
+  :param module_path: sys.argv[0], the path to the module including the file name.
+  :type module_path: str
+  :rtype: str
+  """
   with open(module_path, 'r') as f:
     return ''.join(
       line for line in f.readlines()
@@ -158,17 +187,46 @@ def clean_source(module_path):
 
 
 def get_parser(module_path):
+  """
+  Wrapper for source_parser.extract_parser. 
+
+  :param module_path: sys.argv[0], the path to the module including the file name.
+  :type module_path: str
+  :rtype: callable
+  """
   return source_parser.extract_parser(module_path)
 
 def get_caller_path():
+  """
+  Gets the path to the module from sys.argv.
+
+  :rtype: str
+  """
   tmp_sys = __import__('sys')
   return tmp_sys.argv[0]
 
 def has_argparse(source):
+  """
+  Confirms that the module calls .parse_args somewhere in its source.
+
+  :param source: source code of the module.
+  :type source: str
+  :rtype: bool
+  """
   bla = ['.parse_args()' in line.lower() for line in source.split('\n')]
   return any(bla)
 
 def cleanup(descriptor, filepath):
+  """
+  This function runs upon normal program termination. It closes the descriptor
+  to the temp file and deletes it.
+
+  :param descriptor: File descriptor of the temp file
+  :type descriptor: int
+  :param filepath: Path to the temp file
+  :type filepath: str
+  :rtype: None
+  """
   os.close(descriptor)
   os.remove(filepath)
 

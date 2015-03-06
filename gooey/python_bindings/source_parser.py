@@ -36,6 +36,10 @@ def parse_source_file(file_name):
     * add_arg_assignments     Calls to add_argument() (lines 2-3 in example code)
     * parser_var_name					The instance variable of the ArgumentParser (line 1 in example code)
     * ast_source							The curated collection of all parser related nodes in the client code
+
+  :param file_name: Name of the file where the mdule is
+  :type file_name: str
+  :rtype: iterable
   """
 
   nodes = ast.parse(_openfile(file_name))
@@ -60,20 +64,59 @@ def parse_source_file(file_name):
   return ast_argparse_source
 
 def _openfile(file_name):
+  """
+  Reads from file_name (as binary) and returns its contents
+
+  :param file_name: file to read
+  :type file_name: str
+  :rtype: str
+  """
   with open(file_name, 'rb') as f:
     return f.read()
 
 def read_client_module(filename):
+  """
+  Reads from file_name and returns its contents
+
+  :param file_name: file to read
+  :type file_name: str
+  :rtype: str
+  """
   with open(filename, 'r') as f:
     return f.readlines()
 
 def get_nodes_by_instance_type(nodes, object_type):
+  """
+  Returns all nodes in the AST that are of type object_type.
+
+  :param nodes: AST
+  :type nodes: _ast.Module
+  :param object_type: type to extract
+  :type object_type: type
+  :rtype: list
+  """
   return [node for node in walk_tree(nodes) if isinstance(node, object_type)]
 
 def get_nodes_by_containing_attr(nodes, attr):
+  """
+  Returns all nodes in the AST with attr somewhere in their tree.
+
+  :param nodes: ASTs
+  :param type: list
+  :param attr: Attributes to find in the ast
+  :type attr: str
+  :rtype: str
+  """
   return [node for node in nodes if attr in walk_tree(node)]
 
 def walk_tree(node):
+  """
+  Depth first traversal of the AST.
+
+  :param node: Top of AST node the tree
+  :type node: _ast.Module
+  :rtype: AST
+  """
   yield node
   d = node.__dict__
   for key, value in d.iteritems():
@@ -89,10 +132,21 @@ def walk_tree(node):
 def convert_to_python(ast_source):
   """
   Converts the ast objects back into human readable Python code
+
+  :param ast_source:
+  :type ast_source: list
+  :rtype: list
   """
   return map(codegen.to_source, ast_source)
 
 def get_assignment_name(lines):
+  """
+  Doesn't appear to be used anywhere. Depricated?
+
+  :param lines: list of lines of source
+  :type lines: list
+  :rtype: str
+  """
   nodes = ast.parse(''.join(lines))
   assignments = get_nodes_by_instance_type(nodes, _ast.Assign)
   argparse_var = get_nodes_by_containing_attr(assignments, 'parse_args')
@@ -100,20 +154,63 @@ def get_assignment_name(lines):
 
 
 def lines_indented(line):
+  """
+  Returns True if the line starts with text (not whitespace)
+
+  :param line: Line of source
+  :type line: str
+  :rtype: bool  
+  """
   unindented = re.compile("^[a-zA-Z0-9_@]+")
   return unindented.match(line) is None
 
 def not_at_main(line):
+  """
+  Whether or not 'def main' is in the line
+
+  :param line: Line of source
+  :type line: str
+  :rtype: bool
+  """
   return 'def main' not in line
 
 def not_at_parse_args(line):
+  """
+  Whether or not 'parse_args(' is in the line
+
+  :param line: Line of source
+  :type line: str
+  :rtype: bool
+  """
   return 'parse_args(' not in line
 
 def get_indent(line):
+  """Gives all of the indents at the beggining of a line.
+
+  :param line: Line of source
+  :type line: str
+  :rtype: str
+  """
   indent = re.compile("(\t|\s)")
   return ''.join(takewhile(lambda char: indent.match(char) is not None, line))
 
-def format_source_to_return_parser(source, cutoff_line, restart_line, col_offset, parser_name):
+def format_source_to_return_parser(source, cutoff_line, restart_line, 
+                                   col_offset, parser_name):
+  """
+  injects the parser into the return of the function
+
+  :param source: Source code for the module
+  :type source: str
+  :param cutoff_line: Line number to of the beggining of the node
+  :type cutoff_line: int
+  :param restart_line: End of the function
+  :type restart_line: int
+  :param col_offset: Offset to the first token of the node
+  :type col_offset: int
+  :param parser_name: Function ID
+  :type parser_name: str
+  :rtype: str
+  """
   top = source[:cutoff_line - 1]
   bottom = source[restart_line:]
   indentation = source[cutoff_line - 1][:col_offset]
@@ -126,6 +223,14 @@ def format_source_to_return_parser(source, cutoff_line, restart_line, col_offset
   return ''.join(new_source)
 
 def extract_parser(modulepath):
+  """
+  Creates an edited copy of the module in the tmp directory, and returns a 
+  reference to it (loaded).
+
+  :param modulepath: Path to the module
+  :type modulepath: str
+  :rtype: callable
+  """
   source = read_client_module(modulepath)
 
   nodes = ast.parse(''.join(source))

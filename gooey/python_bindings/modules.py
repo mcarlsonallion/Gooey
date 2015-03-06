@@ -9,10 +9,17 @@ import tempfile
 sys.path.append(os.path.dirname(__file__))
 
 def load(module_source):
+  """
+  Copies edited modules to tmp so they can be imported.
+
+  :param module_source: Edited source code of the module
+  :type module_source: str
+  :rtype: module or None
+  """
   descriptor, tmpfilepath = tempfile.mkstemp(suffix='.py')
 
   tmpfiledir = os.path.dirname(tmpfilepath)
-  tmpfilename = os.path.splitext(os.path.split(tmpfilepath)[-1])[0]
+  tmpfilename = os.path.splitext(os.path.basename(tmpfilepath))[0]
 
   sys.path.append(tmpfiledir)
   try:

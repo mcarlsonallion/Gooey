@@ -58,6 +58,6 @@ class EmptyClientApp(object):
     self.payload = payload
 
 
-if __name__ == '__main__':
-  pass
+# if __name__ == '__main__':
+#   pass
 

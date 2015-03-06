@@ -1,4 +1,4 @@
-'''
+"""
 Created on Jan 24, 2014
 
 @author: Chris
@@ -41,9 +41,7 @@ file, minus all of it's main logic. The two pieces are then sandwiched together,
 saved to a file, and imported as a new module. Now all that has to be done is call
 it (moddified) main function, and bam! It returns to fully populated parser object
 to us. No more complicated ast stuff. Just a little bit of string parsing and we're
-done.
-
-'''
+done."""
 
 import os
 import tempfile
@@ -56,17 +54,14 @@ from gooey.gui.windows import layouts
 from gooey.python_bindings import argparse_to_json
 
 
-
-def Gooey(f=None, advanced=True,
-          language='english', show_config=True,
-          program_name=None, program_description=None):
-  '''
-  Decorator for client code's main function.
+def Gooey(f=None, advanced=True, language='english', show_config=True, 
+      program_name=None, program_description=None):
+  """Decorator for client code's main function.
   Entry point for the GUI generator.
 
-  Scans the client code for argparse data.
-  If found, extracts it and build the proper
-  configuration gui windows (basic or advanced).
+  Scans the client code for argparse data. If found, extracts it and build 
+  the proper configuration gui windows (basic or advanced).
+
   :param f: The function being decorated. Note it's not actually called, just used as a reference.
   :type f: callable
   :param advanced: Whether to show advanced config or not 
@@ -79,22 +74,19 @@ def Gooey(f=None, advanced=True,
   :type program_name: str or None
   :param program_description: Defaults to ArgParse Description
   :type program_description: str or None
-  '''
+  :rtpye: callable"""
 
   params = locals()
 
   def build(payload):
-    """
-    Returns a function called inner() and sets its __name__ to payload's.
+    """Returns a function called inner() and sets its __name__ to payload's.
 
     :param payload: The (decorated) main function from the module
     :type payload: callable
-    :rtype: callable
-    """
+    :rtype: callable"""
     def inner():
-      """
-      """
-      show_config = params['show_config'] #because nonlocal keyword doesn't exist yet :(
+      #because nonlocal keyword doesn't exist yet :(
+      show_config = params['show_config'] 
 
       main_module_path = get_caller_path()
       filename = os.path.basename(main_module_path)
@@ -112,7 +104,7 @@ def Gooey(f=None, advanced=True,
       if not has_argparse(cleaned_source):
         show_config = False
 
-      ### Run our new version
+      ### Run command for our new version
       run_cmd = 'python {}'.format(tmp_filepath)
 
       # Must be called before anything else
@@ -146,11 +138,15 @@ def Gooey(f=None, advanced=True,
         client_app = ClientApp(parser, payload)
 
         if advanced:
-          build_spec = dict(meta.items() + argparse_to_json.convert(parser).items())
-          BodyPanel = partial(AdvancedConfigPanel, build_spec=build_spec)
+          build_spec = dict(meta.items() +\
+                    argparse_to_json.convert(parser).items())
+          BodyPanel = partial(AdvancedConfigPanel, 
+                    build_spec=build_spec)
         else:
-          build_spec = dict(meta.items() + layouts.basic_config.items())
-          BodyPanel = partial(AdvancedConfigPanel, build_spec=build_spec)
+          build_spec = dict(meta.items() +\
+                    layouts.basic_config.items())
+          BodyPanel = partial(AdvancedConfigPanel, 
+                    build_spec=build_spec)
       # User doesn't want to display configuration screen
       # Just jump straight to the run panel
       else:
@@ -175,15 +171,12 @@ def Gooey(f=None, advanced=True,
     return build(f)
   return build
 
-
 def clean_source(module_path):
-  """
-  Returns the text of the module stripping out the decorator @gooey
+  """Returns the text of the module stripping out the decorator @gooey
 
   :param module_path: sys.argv[0], the path to the module including the file name.
   :type module_path: str
-  :rtype: str
-  """
+  :rtype: str"""
   with open(module_path, 'r') as f:
     return ''.join(
       line for line in f.readlines()
@@ -191,46 +184,38 @@ def clean_source(module_path):
 
 
 def get_parser(module_path):
-  """
-  Wrapper for source_parser.extract_parser. 
+  """Wrapper for source_parser.extract_parser. 
 
   :param module_path: sys.argv[0], the path to the module including the file name.
   :type module_path: str
-  :rtype: callable
-  """
+  :rtype: callable"""
   return source_parser.extract_parser(module_path)
 
 def get_caller_path():
-  """
-  Gets the path to the module from sys.argv.
+  """Gets the path to the module from sys.argv.
 
-  :rtype: str
-  """
+  :rtype: str"""
   tmp_sys = __import__('sys')
   return tmp_sys.argv[0]
 
 def has_argparse(source):
-  """
-  Confirms that the module calls .parse_args somewhere in its source.
+  """Confirms that the module calls .parse_args somewhere in its source.
 
   :param source: source code of the module.
   :type source: str
-  :rtype: bool
-  """
+  :rtype: bool"""
   bla = ['.parse_args()' in line.lower() for line in source.split('\n')]
   return any(bla)
 
 def cleanup(descriptor, filepath):
-  """
-  This function runs upon normal program termination. It closes the descriptor
-  to the temp file and deletes it.
+  """This function runs upon normal program termination. It closes the 
+  descriptor to the temp file and deletes it.
 
   :param descriptor: File descriptor of the temp file
   :type descriptor: int
   :param filepath: Path to the temp file
   :type filepath: str
-  :rtype: None
-  """
+  :rtype: None"""
   os.close(descriptor)
   os.remove(filepath)
 

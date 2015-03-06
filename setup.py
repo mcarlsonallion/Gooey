@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 """Script for setuptools."""
 
 from setuptools import setup, find_packages
 
 
-with open('README.md') as readme:
-    long_description = readme.read()
+# with open('README.md') as readme:
+#     long_description = readme.read()
 
 version = __import__('gooey').__version__
 

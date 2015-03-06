@@ -1,11 +1,9 @@
-'''
-Created on Dec 11, 2013
+"""Created on Dec 11, 2013
 
 @author: Chris
 
 Collection of functions for extracting argparse related statements from the 
-client code.
-'''
+client code."""
 
 import re
 import os
@@ -250,24 +248,24 @@ def extract_parser(modulepath):
 
   module_source = format_source_to_return_parser(
     source,
-    cutoff_line=parse_args_assignment.lineno,
-    restart_line=restart_line,
-    col_offset=parse_args_assignment.col_offset,
-    parser_name=parse_args_assignment.value.func.value.id
+    parse_args_assignment.lineno,
+    restart_line,
+    parse_args_assignment.col_offset,
+    parse_args_assignment.value.func.value.id
   )
   client_module = modules.load(module_source)
   return client_module.main()
 
 
-if __name__ == '__main__':
-  filepath = os.path.join(os.path.dirname(__file__),
-                          'examples',
-                          'example_argparse_souce_in_main.py')
+# if __name__ == '__main__':
+#   filepath = os.path.join(os.path.dirname(__file__),
+#                           'examples',
+#                           'example_argparse_souce_in_main.py')
 
-  nodes = ast.parse(_openfile(filepath))
-  #
-  ast_source = parse_source_file(filepath)
-  python_code = convert_to_python(list(ast_source))
+#   nodes = ast.parse(_openfile(filepath))
+#   #
+#   ast_source = parse_source_file(filepath)
+#   python_code = convert_to_python(list(ast_source))
 
 
 

@@ -33,9 +33,9 @@ import gooey
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    # 'sphinx.ext.todo',
-    # 'sphinx.ext.coverage',
-    # 'sphinx.ext.mathjax',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
 ]
 

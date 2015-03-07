@@ -13,7 +13,20 @@ Welcome to Gooey's documentation!
 .. toctree::
    :maxdepth: 2
 
-   decorator.rst
+   modules.rst
+   pip_deploy.rst
+   gooey.dev_utils.rst
+   gooey.examples.rst
+   gooey.gui.lang.rst
+   gooey.gui.rst
+   gooey.gui.util.rst
+   gooey.gui.widgets.rst
+   gooey.gui.windows.rst
+   gooey.python_bindings.rst
+   gooey.rst
+   gooey.tests.gui.rst
+   gooey.tests.gui.widgets.rst
+   gooey.tests.rst
 
 Indices and tables
 ==================

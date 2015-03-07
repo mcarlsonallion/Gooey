@@ -13,8 +13,6 @@ Welcome to Gooey's documentation!
 .. toctree::
    :maxdepth: 2
 
-   modules.rst
-   pip_deploy.rst
    gooey.dev_utils.rst
    gooey.examples.rst
    gooey.gui.lang.rst
